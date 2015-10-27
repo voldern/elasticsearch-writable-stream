@@ -5,7 +5,7 @@ var util = require('util'),
     FlushWritable = require('flushwritable'),
     _ = require('lodash');
 
-util.inherits(ElasticsearchBulkWritable, FlushWritable);
+util.inherits(ElasticsearchBulkIndexWritable, FlushWritable);
 
 /**
  * Transform records into a format required by Elasticsearch bulk API
@@ -44,7 +44,7 @@ function transformRecords(records) {
  * Also the size of the underlying stream buffer.
  * @param {Object} [options.logger] Instance of a logger like bunyan or winston
  */
-function ElasticsearchBulkWritable(client, options) {
+function ElasticsearchBulkIndexWritable(client, options) {
     assert(client, 'client is required');
 
     options = options || {};
@@ -67,7 +67,7 @@ function ElasticsearchBulkWritable(client, options) {
  * @param {Function} callback
  * @return {undefined}
  */
-ElasticsearchBulkWritable.prototype._flush = function _flush(callback) {
+ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
     try {
         var records = transformRecords(this.queue);
     } catch (error) {
@@ -117,7 +117,7 @@ ElasticsearchBulkWritable.prototype._flush = function _flush(callback) {
  * @param {Function} callback
  * @returns {undefined}
  */
-ElasticsearchBulkWritable.prototype._write = function _write(record, enc, callback) {
+ElasticsearchBulkIndexWritable.prototype._write = function _write(record, enc, callback) {
     if (this.logger) {
         this.logger.debug('Adding to Elasticsearch queue', { record: record });
     }
@@ -131,4 +131,4 @@ ElasticsearchBulkWritable.prototype._write = function _write(record, enc, callba
     callback();
 };
 
-module.exports = ElasticsearchBulkWritable;
+module.exports = ElasticsearchBulkIndexWritable;

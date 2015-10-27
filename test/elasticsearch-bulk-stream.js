@@ -4,7 +4,7 @@ var chai = require('chai'),
     sinon = require('sinon'),
     sinonChai = require('sinon-chai'),
     clone = require('clone'),
-    ElasticsearchBulkWritable = require('../');
+    ElasticsearchBulkIndexWritable = require('../');
 
 chai.use(sinonChai);
 
@@ -14,7 +14,7 @@ var recordFixture = require('./fixture/record.json');
 var successResponseFixture = require('./fixture/success-response.json');
 var errorResponseFixture = require('./fixture/error-response.json');
 
-describe('ElastisearchBulkWritable', function() {
+describe('ElastisearchBulkIndexWritable', function() {
     beforeEach(function() {
         this.sinon = sinon.sandbox.create();
     });
@@ -26,12 +26,12 @@ describe('ElastisearchBulkWritable', function() {
     describe('constructor', function() {
         it('should require client', function() {
             expect(function() {
-                new ElasticsearchBulkWritable();
+                new ElasticsearchBulkIndexWritable();
             }).to.Throw(Error, 'client is required');
         });
 
         it('should default highWaterMark to 64', function() {
-            var stream = new ElasticsearchBulkWritable({});
+            var stream = new ElasticsearchBulkIndexWritable({});
 
             expect(stream.highWaterMark).to.eq(64);
         });
@@ -39,7 +39,7 @@ describe('ElastisearchBulkWritable', function() {
 
     describe('queue', function() {
         beforeEach(function() {
-            this.stream = new ElasticsearchBulkWritable({}, { highWaterMark: 10 });
+            this.stream = new ElasticsearchBulkIndexWritable({}, { highWaterMark: 10 });
         });
 
         it('should queue up number of items equal to highWaterMark', function(done) {
@@ -93,7 +93,7 @@ describe('ElastisearchBulkWritable', function() {
                 bulk: this.sinon.stub()
             };
 
-            this.stream = new ElasticsearchBulkWritable(this.client);
+            this.stream = new ElasticsearchBulkIndexWritable(this.client);
         });
 
         it('should write records to elasticsearch', function(done) {
