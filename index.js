@@ -40,7 +40,7 @@ function transformRecords(records) {
  *
  * @param {Elasticsearch.Client} client Elasticsearch client
  * @param {Object} options Options
- * @param {Number} [options.highWaterMark] Number of items to buffer before writing.
+ * @param {Number} [options.highWaterMark=16] Number of items to buffer before writing.
  * Also the size of the underlying stream buffer.
  * @param {Object} [options.logger] Instance of a logger like bunyan or winston
  */
@@ -55,7 +55,7 @@ function ElasticsearchBulkIndexWritable(client, options) {
     this.client = client;
     this.logger = options.logger || null;
 
-    this.highWaterMark = options.highWaterMark || 64;
+    this.highWaterMark = options.highWaterMark || 16;
     this.writtenRecords = 0;
     this.queue = [];
 }

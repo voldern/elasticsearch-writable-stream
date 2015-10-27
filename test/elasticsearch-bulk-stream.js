@@ -30,10 +30,10 @@ describe('ElastisearchBulkIndexWritable', function() {
             }).to.Throw(Error, 'client is required');
         });
 
-        it('should default highWaterMark to 64', function() {
+        it('should default highWaterMark to 16', function() {
             var stream = new ElasticsearchBulkIndexWritable({});
 
-            expect(stream.highWaterMark).to.eq(64);
+            expect(stream.highWaterMark).to.eq(16);
         });
     });
 
