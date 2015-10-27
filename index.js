@@ -18,7 +18,6 @@ function transformRecords(records) {
     return records.reduce(function(bulkOperations, record) {
         assert(record.index, 'index is required');
         assert(record.type, 'type is required');
-        assert(record.id, 'id is required');
         assert(record.body, 'body is required');
 
         bulkOperations.push({

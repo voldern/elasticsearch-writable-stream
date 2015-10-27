@@ -136,8 +136,6 @@ describe('ElastisearchBulkIndexWritable', function() {
 
         it('should throw error on type missing in record', getMissingFieldTest('type'));
 
-        it('should throw error on id missing in record', getMissingFieldTest('id'));
-
         it('should throw error on body missing in record', getMissingFieldTest('body'));
     });
 });
