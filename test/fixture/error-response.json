@@ -1,0 +1,36 @@
+{
+    "took": 30,
+    "errors": true,
+    "items": [
+        {
+            "index": {
+                "_index": "indexName",
+                "_id": "recordId",
+                "_type": "recordType",
+                "_version": 5,
+                "status": 500,
+                "error": "InternalServerError"
+            }
+        },
+        {
+            "index": {
+                "_index": "indexName",
+                "_id": "recordId",
+                "_type": "recordType",
+                "_version": 5,
+                "status": 403,
+                "error": "Forbidden"
+            }
+        },
+        {
+            "index": {
+                "_index": "indexName",
+                "_id": "recordId",
+                "_type": "recordType",
+                "_version": 5,
+                "status": 500,
+                "error": "InternalServerError"
+            }
+        }
+    ]
+}

@@ -1,0 +1,8 @@
+{
+    "index": "indexName",
+    "id": "recordId",
+    "type": "recordType",
+    "body": {
+        "foo": "bar"
+    }
+}

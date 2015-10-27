@@ -1,0 +1,6 @@
+{
+    "extends": "vgno",
+    "rules": {
+        "no-underscore-dangle": 0
+    }
+}
