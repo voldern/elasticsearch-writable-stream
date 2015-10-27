@@ -9,6 +9,8 @@ A writable stream for bulk indexing records in Elasticsearch
 
 # Usage
 
+## Format
+
 The records written to the stream has to have the following format:
 ```javascript
 {
@@ -20,6 +22,8 @@ The records written to the stream has to have the following format:
   }
 }
 ```
+
+## Buffering
 
 The `highWaterMark` option set on the stream defines how many items
 will be buffered before doing a bulk indexing operation. The stream
