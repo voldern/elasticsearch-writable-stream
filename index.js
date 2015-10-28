@@ -39,7 +39,7 @@ function transformRecords(records) {
  *
  * @param {Elasticsearch.Client} client Elasticsearch client
  * @param {Object} options Options
- * @param {Number} [options.highWaterMark=16] Number of items to buffer before writing.
+ * @param {number} [options.highWaterMark=16] Number of items to buffer before writing.
  * Also the size of the underlying stream buffer.
  * @param {Object} [options.logger] Instance of a logger like bunyan or winston
  */
