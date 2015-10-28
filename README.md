@@ -54,6 +54,10 @@ someInputStream
   })
 ```
 
+# API
+
+See [api.md](api.md).
+
 # See
 
 - [elasticsearch-streams](https://www.npmjs.com/package/elasticsearch-streams)

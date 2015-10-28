@@ -4,7 +4,8 @@
   "description": "A writable stream for bulk indexing records in Elasticsearch",
   "main": "index.js",
   "scripts": {
-    "test": "eslint . && istanbul cover --print both _mocha test"
+    "test": "eslint . && istanbul cover --print both _mocha test",
+    "preversion": "jsdoc2md index.js > api.md"
   },
   "author": "Espen Volden <voldern@hoeggen.net>",
   "license": "MIT",
@@ -14,6 +15,7 @@
     "eslint": "^1.7.3",
     "eslint-config-vgno": "^4.0.1",
     "istanbul": "^0.4.0",
+    "jsdoc-to-markdown": "^1.2.0",
     "mocha": "^2.3.3",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0"
