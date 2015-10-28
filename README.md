@@ -44,7 +44,14 @@ var ElasticsearchBulkIndexStream = require('elasticsearch-bulk-index-stream');
 
 var stream = new ElasticsearchBulkIndexStream(elasticsearchClient, { highWaterMark: 256 });
 
-someInputStream.pipe(stream);
+someInputStream
+  .pipe(stream)
+  .on('error', function(error) {
+    // Handle error
+  })
+  .on('finish', function() {
+    // Clean up Elasticsearch client?
+  })
 ```
 
 # See
