@@ -27,5 +27,12 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:voldern/elasticsearch-bulk-index-stream.git"
-  }
+  },
+  "keywords": [
+    "elasticsearch",
+    "stream",
+    "writable",
+    "write",
+    "bulk"
+  ]
 }
