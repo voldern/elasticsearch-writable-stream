@@ -64,6 +64,11 @@ that this library requires the `index` and `type` of the data being
 written to exist in the record instead of being set in a callback when
 the records written.
 
+`elasticsearch-streams` also implements its own event named `close` to
+indicate that all the data has been written to Elasticsearch. This
+will break modules like [pump](https://www.npmjs.com/package/pump)
+that depend on the `finish` event.
+
 # License
 
 MIT
