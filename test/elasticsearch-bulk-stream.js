@@ -107,10 +107,10 @@ describe('ElastisearchBulkIndexWritable', function() {
         });
 
         it('should trigger error on elasticsearch error', function(done) {
-            this.client.bulk.yields('Fail');
+            this.client.bulk.yields(new Error('Fail'));
 
             this.stream.on('error', function(error) {
-                expect(error).to.eq('Fail');
+                expect(error.message).to.eq('Fail');
 
                 done();
             });
