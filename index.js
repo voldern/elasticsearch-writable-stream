@@ -79,6 +79,8 @@ ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
 
     this.client.bulk({ body: records }, function bulkCallback(err, data) {
         if (err) {
+            err.records = records;
+
             return callback(err);
         }
 
@@ -93,7 +95,10 @@ ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
                 errors.forEach(this.logger.error.bind(this.logger));
             }
 
-            return callback(new Error(errors));
+            var error = new Error(errors);
+            error.records = records;
+
+            return callback(error);
         }
 
         if (this.logger) {
