@@ -93,7 +93,9 @@ describe('ElastisearchBulkIndexWritable', function() {
                 bulk: this.sinon.stub()
             };
 
-            this.stream = new ElasticsearchBulkIndexWritable(this.client);
+            this.stream = new ElasticsearchBulkIndexWritable(this.client, {
+                highWaterMark: 6
+            });
         });
 
         it('should write records to elasticsearch', function(done) {
@@ -104,6 +106,22 @@ describe('ElastisearchBulkIndexWritable', function() {
 
                 done();
             }.bind(this));
+        });
+
+        it('should do nothing if there is nothing in the queue when the stream is closed', function(done) {
+            this.client.bulk.yields(null, successResponseFixture);
+
+            this.stream.on('finish', function() {
+                expect(this.client.bulk).to.have.been.calledOnce;
+
+                done();
+            }.bind(this));
+
+            for (var i = 0; i < 6; i++) {
+                this.stream.write(recordFixture);
+            }
+
+            this.stream.end();
         });
 
         it('should trigger error on elasticsearch error', function(done) {
