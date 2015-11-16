@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.1.0] - 2015-11-16
+### Changed
+- Add property `records` to error events which contains the records
+  that couldn't be written
+
 ## [0.0.4] - 2015-10-28
 ### Added
 - Keywords to package.json
