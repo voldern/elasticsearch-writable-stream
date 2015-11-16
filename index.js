@@ -67,10 +67,6 @@ function ElasticsearchBulkIndexWritable(client, options) {
  * @param {Function} callback
  */
 ElasticsearchBulkIndexWritable.prototype.bulkWrite = function bulkWrite(records, callback) {
-    if (this.logger) {
-        this.logger.debug('Writing %d records to Elasticsearch', records.length);
-    }
-
     this.client.bulk({ body: records }, function bulkCallback(err, data) {
         if (err) {
             err.records = records;
@@ -95,10 +91,6 @@ ElasticsearchBulkIndexWritable.prototype.bulkWrite = function bulkWrite(records,
             return callback(error);
         }
 
-        if (this.logger) {
-            this.logger.info('Wrote %d records to Elasticsearch', records.length);
-        }
-
         callback();
     }.bind(this));
 };
@@ -121,9 +113,17 @@ ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
         return callback(error);
     }
 
+    if (this.logger) {
+        this.logger.debug('Writing %d records to Elasticsearch', this.queue.length);
+    }
+
     this.bulkWrite(records, function(err) {
         if (err) {
             return callback(err);
+        }
+
+        if (this.logger) {
+            this.logger.info('Wrote %d records to Elasticsearch', this.queue.length);
         }
 
         this.writtenRecords += this.queue.length;

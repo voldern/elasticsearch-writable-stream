@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.1.2] - 2015-11-16
+### Fixed
+- Log right amount of records. The records count that was logged was
+  doubled in previous release.
+
 ## [0.1.1] - 2015-11-16
 ### Fixed
 - Do not write if there are no records in the queue when the stream gets closed
