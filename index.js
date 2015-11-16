@@ -60,21 +60,15 @@ function ElasticsearchBulkIndexWritable(client, options) {
 }
 
 /**
- * Write items in queue to Elasticsearch
+ * Bulk write records to Elasticsearch
  *
  * @private
+ * @param {array} records
  * @param {Function} callback
- * @return {undefined}
  */
-ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
-    try {
-        var records = transformRecords(this.queue);
-    } catch (error) {
-        return callback(error);
-    }
-
+ElasticsearchBulkIndexWritable.prototype.bulkWrite = function bulkWrite(records, callback) {
     if (this.logger) {
-        this.logger.debug('Writing %d records to Elasticsearch', this.queue.length);
+        this.logger.debug('Writing %d records to Elasticsearch', records.length);
     }
 
     this.client.bulk({ body: records }, function bulkCallback(err, data) {
@@ -102,7 +96,34 @@ ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
         }
 
         if (this.logger) {
-            this.logger.info('Wrote %d records to Elasticsearch', this.queue.length);
+            this.logger.info('Wrote %d records to Elasticsearch', records.length);
+        }
+
+        callback();
+    }.bind(this));
+};
+
+/**
+ * Flush method needed by the underlying stream implementation
+ *
+ * @private
+ * @param {Function} callback
+ * @return {undefined}
+ */
+ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
+    if (this.queue.length === 0) {
+        return callback();
+    }
+
+    try {
+        var records = transformRecords(this.queue);
+    } catch (error) {
+        return callback(error);
+    }
+
+    this.bulkWrite(records, function(err) {
+        if (err) {
+            return callback(err);
         }
 
         this.writtenRecords += this.queue.length;
