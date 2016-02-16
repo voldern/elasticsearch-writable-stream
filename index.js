@@ -55,6 +55,7 @@ function ElasticsearchBulkIndexWritable(client, options) {
     this.logger = options.logger || null;
 
     this.highWaterMark = options.highWaterMark || 16;
+    this.timeout = options.timeout || null;
     this.writtenRecords = 0;
     this.queue = [];
 }
@@ -146,11 +147,20 @@ ElasticsearchBulkIndexWritable.prototype._write = function _write(record, enc, c
     if (this.logger) {
         this.logger.debug('Adding to Elasticsearch queue', { record: record });
     }
-
+    var self = this;
     this.queue.push(record);
 
     if (this.queue.length >= this.highWaterMark) {
         return this._flush(callback);
+    } else if (self.timeout) {
+        clearTimeout(self.timeoutId);
+        self.timeoutId = setTimeout(function() {
+            self._flush(function(err) {
+                if (err) {
+                    self.emit('error', err);
+                }
+            });
+        }, self.timeout);
     }
 
     callback();
