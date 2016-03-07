@@ -30,6 +30,13 @@ will be buffered before doing a bulk indexing operation. The stream
 will also write all buffered items if its is closed, before emitting
 the `finish` event.
 
+## Flushing
+
+Its also possible to send in the option `flushTimeout` to indicate
+that the items currently in the buffer should be flushed after the
+given amount of milliseconds if the `highWaterMark` haven't been
+reached.
+
 ## Logging
 
 A [bunyan](https://www.npmjs.com/package/bunyan),
@@ -42,7 +49,10 @@ sent in as `options.logger` to the constructor.
 ```javascript
 var ElasticsearchBulkIndexStream = require('elasticsearch-bulk-index-stream');
 
-var stream = new ElasticsearchBulkIndexStream(elasticsearchClient, { highWaterMark: 256 });
+var stream = new ElasticsearchBulkIndexStream(elasticsearchClient, {
+  highWaterMark: 256,
+  flushTimeout: 500
+});
 
 someInputStream
   .pipe(stream)
