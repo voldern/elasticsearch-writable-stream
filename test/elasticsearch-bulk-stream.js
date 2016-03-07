@@ -173,16 +173,13 @@ describe('ElastisearchBulkIndexWritable', function() {
             this.client.bulk.yields(null, successResponseFixture);
             this.clock = sinon.useFakeTimers();
 
-            function writeRecords(stream, number) {
-                for (var i = 0; i < number; i++) {
-                    stream.write(recordFixture);
-                }
+            for (var i = 0; i < 10; i++) {
+                this.stream.write(recordFixture);
             }
 
-            writeRecords(this.stream, 10);
             expect(this.client.bulk.callCount).to.eq(1);
 
-            writeRecords(this.stream, 1);
+            this.stream.write(recordFixture);
             this.clock.tick(1001);
             expect(this.client.bulk.callCount).to.eq(2);
         });
