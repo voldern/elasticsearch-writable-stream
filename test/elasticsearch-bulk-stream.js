@@ -156,7 +156,8 @@ describe('ElastisearchBulkIndexWritable', function() {
 
         it('should throw error on body missing in record', getMissingFieldTest('body'));
     });
-    describe('timeout', function() {
+
+    describe('flush timeout', function() {
         beforeEach(function() {
             this.client = {
                 bulk: this.sinon.stub()
