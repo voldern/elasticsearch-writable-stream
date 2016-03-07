@@ -41,6 +41,7 @@ function transformRecords(records) {
  * @param {Object} options Options
  * @param {number} [options.highWaterMark=16] Number of items to buffer before writing.
  * Also the size of the underlying stream buffer.
+ * @param {number} [options.flushTimeout=null] Number of ms to flush records after, if highWaterMark hasn't been reached
  * @param {Object} [options.logger] Instance of a logger like bunyan or winston
  */
 function ElasticsearchBulkIndexWritable(client, options) {
