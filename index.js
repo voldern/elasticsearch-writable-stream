@@ -154,9 +154,9 @@ ElasticsearchBulkIndexWritable.prototype._write = function _write(record, enc, c
     if (this.queue.length >= this.highWaterMark) {
         return this._flush(callback);
     } else if (this.flushTimeout) {
-        clearTimeout(this.timeoutId);
+        clearTimeout(this.flushTimeoutId);
 
-        this.timeoutId = setTimeout(function() {
+        this.flushTimeoutId = setTimeout(function() {
             this._flush(function(err) {
                 if (err) {
                     this.emit('error', err);
