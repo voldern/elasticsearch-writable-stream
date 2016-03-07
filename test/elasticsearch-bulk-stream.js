@@ -165,36 +165,26 @@ describe('ElastisearchBulkIndexWritable', function() {
 
             this.stream = new ElasticsearchBulkIndexWritable(this.client, {
                 highWaterMark: 10,
-                timeout: 10
+                flushTimeout: 1000
             });
         });
 
-        it('should write records to elasticsearch', function(done) {
+        it('should flush queue if there is something in the queue after timeout', function() {
             this.client.bulk.yields(null, successResponseFixture);
+            this.clock = sinon.useFakeTimers();
 
-            this.stream.end(recordFixture, function() {
-                expect(this.client.bulk).to.have.been.called;
-
-                done();
-            }.bind(this));
-        });
-
-        it('should flush queue if there is something in the queue after timeout', function(done) {
-            this.client.bulk.yields(null, successResponseFixture);
-            var self = this;
-            var write = function(n) {
-                for (var i = 0; i < n; i++) {
-                    self.stream.write(recordFixture);
+            function writeRecords(stream, number) {
+                for (var i = 0; i < number; i++) {
+                    stream.write(recordFixture);
                 }
-            };
+            }
 
-            setTimeout(function() {
-                expect(self.client.bulk.callCount).to.eq(10);
-                done();
-            }, 40);
+            writeRecords(this.stream, 10);
+            expect(this.client.bulk.callCount).to.eq(1);
 
-            write(95);
-            expect(self.client.bulk.callCount).to.eq(9);
+            writeRecords(this.stream, 1);
+            this.clock.tick(1001);
+            expect(this.client.bulk.callCount).to.eq(2);
         });
     });
 });
