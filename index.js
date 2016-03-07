@@ -148,20 +148,21 @@ ElasticsearchBulkIndexWritable.prototype._write = function _write(record, enc, c
     if (this.logger) {
         this.logger.debug('Adding to Elasticsearch queue', { record: record });
     }
-    var self = this;
+
     this.queue.push(record);
 
     if (this.queue.length >= this.highWaterMark) {
         return this._flush(callback);
-    } else if (self.flushTimeout) {
+    } else if (this.flushTimeout) {
         clearTimeout(this.timeoutId);
-        self.timeoutId = setTimeout(function() {
-            self._flush(function(err) {
+
+        this.timeoutId = setTimeout(function() {
+            this._flush(function(err) {
                 if (err) {
-                    self.emit('error', err);
+                    this.emit('error', err);
                 }
-            });
-        }, self.flushTimeout);
+            }.bind(this));
+        }.bind(this), this.flushTimeout);
     }
 
     callback();
