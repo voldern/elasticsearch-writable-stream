@@ -156,7 +156,8 @@ describe('ElastisearchBulkIndexWritable', function() {
 
         it('should throw error on body missing in record', getMissingFieldTest('body'));
     });
-    describe('timeout', function() {
+
+    describe('flush timeout', function() {
         beforeEach(function() {
             this.client = {
                 bulk: this.sinon.stub()
@@ -164,36 +165,23 @@ describe('ElastisearchBulkIndexWritable', function() {
 
             this.stream = new ElasticsearchBulkIndexWritable(this.client, {
                 highWaterMark: 10,
-                timeout: 10
+                flushTimeout: 1000
             });
         });
 
-        it('should write records to elasticsearch', function(done) {
+        it('should flush queue if there is something in the queue after timeout', function() {
             this.client.bulk.yields(null, successResponseFixture);
+            this.clock = sinon.useFakeTimers();
 
-            this.stream.end(recordFixture, function() {
-                expect(this.client.bulk).to.have.been.called;
+            for (var i = 0; i < 10; i++) {
+                this.stream.write(recordFixture);
+            }
 
-                done();
-            }.bind(this));
-        });
+            expect(this.client.bulk.callCount).to.eq(1);
 
-        it('should flush queue if there is something in the queue after timeout', function(done) {
-            this.client.bulk.yields(null, successResponseFixture);
-            var self = this;
-            var write = function(n) {
-                for (var i = 0; i < n; i++) {
-                    self.stream.write(recordFixture);
-                }
-            };
-
-            setTimeout(function() {
-                expect(self.client.bulk.callCount).to.eq(10);
-                done();
-            }, 40);
-
-            write(95);
-            expect(self.client.bulk.callCount).to.eq(9);
+            this.stream.write(recordFixture);
+            this.clock.tick(1001);
+            expect(this.client.bulk.callCount).to.eq(2);
         });
     });
 });

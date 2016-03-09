@@ -41,6 +41,7 @@ function transformRecords(records) {
  * @param {Object} options Options
  * @param {number} [options.highWaterMark=16] Number of items to buffer before writing.
  * Also the size of the underlying stream buffer.
+ * @param {number} [options.flushTimeout=null] Number of ms to flush records after, if highWaterMark hasn't been reached
  * @param {Object} [options.logger] Instance of a logger like bunyan or winston
  */
 function ElasticsearchBulkIndexWritable(client, options) {
@@ -55,7 +56,7 @@ function ElasticsearchBulkIndexWritable(client, options) {
     this.logger = options.logger || null;
 
     this.highWaterMark = options.highWaterMark || 16;
-    this.timeout = options.timeout || null;
+    this.flushTimeout = options.flushTimeout || null;
     this.writtenRecords = 0;
     this.queue = [];
 }
@@ -114,8 +115,11 @@ ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
         return callback(error);
     }
 
+    var recordsCount = this.queue.length;
+    this.queue = [];
+
     if (this.logger) {
-        this.logger.debug('Writing %d records to Elasticsearch', this.queue.length);
+        this.logger.debug('Writing %d records to Elasticsearch', recordsCount);
     }
 
     this.bulkWrite(records, function(err) {
@@ -124,11 +128,10 @@ ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
         }
 
         if (this.logger) {
-            this.logger.info('Wrote %d records to Elasticsearch', this.queue.length);
+            this.logger.info('Wrote %d records to Elasticsearch', recordsCount);
         }
 
-        this.writtenRecords += this.queue.length;
-        this.queue = [];
+        this.writtenRecords += recordsCount;
 
         callback();
     }.bind(this));
@@ -147,20 +150,23 @@ ElasticsearchBulkIndexWritable.prototype._write = function _write(record, enc, c
     if (this.logger) {
         this.logger.debug('Adding to Elasticsearch queue', { record: record });
     }
-    var self = this;
+
     this.queue.push(record);
 
     if (this.queue.length >= this.highWaterMark) {
+        clearTimeout(this.flushTimeoutId);
+
         return this._flush(callback);
-    } else if (self.timeout) {
-        clearTimeout(self.timeoutId);
-        self.timeoutId = setTimeout(function() {
-            self._flush(function(err) {
+    } else if (this.flushTimeout) {
+        clearTimeout(this.flushTimeoutId);
+
+        this.flushTimeoutId = setTimeout(function() {
+            this._flush(function(err) {
                 if (err) {
-                    self.emit('error', err);
+                    this.emit('error', err);
                 }
-            });
-        }, self.timeout);
+            }.bind(this));
+        }.bind(this), this.flushTimeout);
     }
 
     callback();
