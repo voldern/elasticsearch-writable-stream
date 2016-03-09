@@ -156,4 +156,32 @@ describe('ElastisearchBulkIndexWritable', function() {
 
         it('should throw error on body missing in record', getMissingFieldTest('body'));
     });
+
+    describe('flush timeout', function() {
+        beforeEach(function() {
+            this.client = {
+                bulk: this.sinon.stub()
+            };
+
+            this.stream = new ElasticsearchBulkIndexWritable(this.client, {
+                highWaterMark: 10,
+                flushTimeout: 1000
+            });
+        });
+
+        it('should flush queue if there is something in the queue after timeout', function() {
+            this.client.bulk.yields(null, successResponseFixture);
+            this.clock = sinon.useFakeTimers();
+
+            for (var i = 0; i < 10; i++) {
+                this.stream.write(recordFixture);
+            }
+
+            expect(this.client.bulk.callCount).to.eq(1);
+
+            this.stream.write(recordFixture);
+            this.clock.tick(1001);
+            expect(this.client.bulk.callCount).to.eq(2);
+        });
+    });
 });
