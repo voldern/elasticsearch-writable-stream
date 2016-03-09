@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.2.0] - 2016-03-09
+### Added
+- `flushTimeout` option what will flush records in the queue after
+  given time interval if highWaterMark hasn't been reached
+
 ## [0.1.2] - 2015-11-16
 ### Fixed
 - Log right amount of records. The records count that was logged was
