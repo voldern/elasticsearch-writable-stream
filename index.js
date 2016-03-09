@@ -78,7 +78,7 @@ ElasticsearchBulkIndexWritable.prototype.bulkWrite = function bulkWrite(records,
 
         if (data.errors === true) {
             var errors = data.items.map(function(item) {
-                return _.pluck(item, 'error')[0];
+                return _.map(item, 'error')[0];
             });
 
             errors = _.uniq(_.filter(errors, _.isString));
