@@ -167,21 +167,38 @@ describe('ElastisearchBulkIndexWritable', function() {
                 highWaterMark: 10,
                 flushTimeout: 1000
             });
+
+            this.client.bulk.yields(null, successResponseFixture);
+            this.clock = sinon.useFakeTimers();
         });
 
         it('should flush queue if there is something in the queue after timeout', function() {
-            this.client.bulk.yields(null, successResponseFixture);
-            this.clock = sinon.useFakeTimers();
-
             for (var i = 0; i < 10; i++) {
                 this.stream.write(recordFixture);
             }
 
-            expect(this.client.bulk.callCount).to.eq(1);
+            expect(this.client.bulk).to.have.callCount(1);
 
             this.stream.write(recordFixture);
             this.clock.tick(1001);
-            expect(this.client.bulk.callCount).to.eq(2);
+
+            expect(this.client.bulk).to.have.callCount(2);
+        });
+
+        it('should clear flush timer when stream has ended', function(done) {
+            this.sinon.spy(this.stream, '_flush');
+
+            this.stream.write(recordFixture);
+
+            this.stream.end(function() {
+                expect(this.stream._flush).to.have.callCount(1);
+
+                this.clock.tick(2001);
+
+                expect(this.stream._flush).to.have.callCount(1);
+
+                done();
+            }.bind(this));
         });
     });
 });
