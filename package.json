@@ -1,6 +1,6 @@
 {
   "name": "elasticsearch-bulk-index-stream",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A writable stream for bulk indexing records in Elasticsearch",
   "main": "index.js",
   "scripts": {

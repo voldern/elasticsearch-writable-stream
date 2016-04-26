@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.2.1] - 2016-05-26
+### Fixed
+- Clear flush timer when stream has ended
+
 ## [0.2.0] - 2016-03-09
 ### Added
 - `flushTimeout` option what will flush records in the queue after
