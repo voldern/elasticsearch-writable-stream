@@ -105,6 +105,8 @@ ElasticsearchBulkIndexWritable.prototype.bulkWrite = function bulkWrite(records,
  * @return {undefined}
  */
 ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
+    clearTimeout(this.flushTimeoutId);
+
     if (this.queue.length === 0) {
         return callback();
     }
@@ -154,8 +156,6 @@ ElasticsearchBulkIndexWritable.prototype._write = function _write(record, enc, c
     this.queue.push(record);
 
     if (this.queue.length >= this.highWaterMark) {
-        clearTimeout(this.flushTimeoutId);
-
         return this._flush(callback);
     } else if (this.flushTimeout) {
         clearTimeout(this.flushTimeoutId);
