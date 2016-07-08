@@ -17,6 +17,7 @@ The records written to the stream has to have the following format:
   index: 'name-of-index',
   type: 'recordType',
   id: 'recordId',
+  parent: 'parentRecordType' //optional
   body: {
     name: 'Foo Bar'
   }
