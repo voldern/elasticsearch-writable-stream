@@ -19,13 +19,16 @@ function transformRecords(records) {
         assert(record.index, 'index is required');
         assert(record.type, 'type is required');
         assert(record.body, 'body is required');
-
+        var index = {
+            _index: record.index,
+            _type: record.type,
+            _id: record.id
+        };
+        if (record.parent) {
+            index._parent = record.parent;
+        }
         bulkOperations.push({
-            index: {
-                _index: record.index,
-                _type: record.type,
-                _id: record.id
-            }
+            index: index
         });
 
         bulkOperations.push(record.body);

@@ -1,0 +1,9 @@
+{
+    "index": "indexName",
+    "id": "recordId",
+    "type": "recordType",
+    "parent": "parentRecordType",
+    "body": {
+        "foo": "bar"
+    }
+}
