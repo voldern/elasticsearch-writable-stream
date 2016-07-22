@@ -221,6 +221,7 @@ describe('ElastisearchBulkIndexWritable', function() {
 
         it('should include parent type in record if present', function() {
             this.stream.write(recordParentFixture);
+
             var expectedArgument = {
                 body: [
                     {
@@ -236,6 +237,7 @@ describe('ElastisearchBulkIndexWritable', function() {
                     }
                 ]
             };
+
             expect(this.client.bulk).to.have.callCount(1);
             expect(this.client.bulk).to.have.been.calledWith(expectedArgument);
         });
