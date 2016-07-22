@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.0] - 2016-07-22
+### Added
+- Make it possible to add parent property to documents
+
 ## [0.2.1] - 2016-05-26
 ### Fixed
 - Clear flush timer when stream has ended
