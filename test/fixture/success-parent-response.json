@@ -1,0 +1,16 @@
+{
+    "took": 30,
+    "errors": false,
+    "items": [
+        {
+            "index": {
+                "_index": "indexName",
+                "_id": "recordId",
+                "_type": "recordType",
+                "_parent": "parentRecordType",
+                "_version": 5,
+                "status": 200
+            }
+        }
+    ]
+}

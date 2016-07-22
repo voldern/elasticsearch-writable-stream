@@ -11,7 +11,9 @@ chai.use(sinonChai);
 var expect = chai.expect;
 
 var recordFixture = require('./fixture/record.json');
+var recordParentFixture = require('./fixture/parentrecord.json');
 var successResponseFixture = require('./fixture/success-response.json');
+var successParentResponseFixture = require('./fixture/success-parent-response.json');
 var errorResponseFixture = require('./fixture/error-response.json');
 
 describe('ElastisearchBulkIndexWritable', function() {
@@ -199,6 +201,45 @@ describe('ElastisearchBulkIndexWritable', function() {
 
                 done();
             }.bind(this));
+        });
+    });
+
+    describe('parent type', function() {
+        beforeEach(function() {
+            this.client = {
+                bulk: this.sinon.stub()
+            };
+
+            this.stream = new ElasticsearchBulkIndexWritable(this.client, {
+                highWaterMark: 1,
+                flushTimeout: 10
+            });
+
+            this.client.bulk.yields(null, successParentResponseFixture);
+            this.clock = sinon.useFakeTimers();
+        });
+
+        it('should include parent type in record if present', function() {
+            this.stream.write(recordParentFixture);
+
+            var expectedArgument = {
+                body: [
+                    {
+                        index: {
+                            _index: 'indexName',
+                            _type: 'recordType',
+                            _id: 'recordId',
+                            _parent: 'parentRecordType'
+                        }
+                    },
+                    {
+                        foo: 'bar'
+                    }
+                ]
+            };
+
+            expect(this.client.bulk).to.have.callCount(1);
+            expect(this.client.bulk).to.have.been.calledWith(expectedArgument);
         });
     });
 });
