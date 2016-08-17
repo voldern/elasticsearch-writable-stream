@@ -11,9 +11,13 @@ chai.use(sinonChai);
 var expect = chai.expect;
 
 var recordFixture = require('./fixture/record.json');
-var recordParentFixture = require('./fixture/parentrecord.json');
+var recordDeleteFixture = require('./fixture/record-delete.json');
+var recordParentFixture = require('./fixture/record-parent.json');
+var recordUpdateFixture = require('./fixture/record-update.json');
 var successResponseFixture = require('./fixture/success-response.json');
+var successDeleteResponseFixture = require('./fixture/success-delete-response.json');
 var successParentResponseFixture = require('./fixture/success-parent-response.json');
+var successUpdateResponseFixture = require('./fixture/success-update-response.json');
 var errorResponseFixture = require('./fixture/error-response.json');
 
 describe('ElastisearchBulkIndexWritable', function() {
@@ -234,6 +238,64 @@ describe('ElastisearchBulkIndexWritable', function() {
                     },
                     {
                         foo: 'bar'
+                    }
+                ]
+            };
+
+            expect(this.client.bulk).to.have.callCount(1);
+            expect(this.client.bulk).to.have.been.calledWith(expectedArgument);
+        });
+    });
+
+    describe('custom action', function() {
+        beforeEach(function() {
+            this.client = {
+                bulk: this.sinon.stub()
+            };
+
+            this.stream = new ElasticsearchBulkIndexWritable(this.client, {
+                highWaterMark: 1,
+                flushTimeout: 10
+            });
+
+            this.clock = sinon.useFakeTimers();
+        });
+
+        it('should allow you to override the action', function() {
+            this.client.bulk.yields(null, successUpdateResponseFixture);
+            this.stream.write(recordUpdateFixture);
+
+            var expectedArgument = {
+                body: [
+                    {
+                        update: {
+                            _index: 'indexName',
+                            _type: 'recordType',
+                            _id: 'recordId'
+                        }
+                    },
+                    {
+                        foo: 'bar'
+                    }
+                ]
+            };
+
+            expect(this.client.bulk).to.have.callCount(1);
+            expect(this.client.bulk).to.have.been.calledWith(expectedArgument);
+        });
+
+        it('should not include body if action is delete', function() {
+            this.client.bulk.yields(null, successDeleteResponseFixture);
+            this.stream.write(recordDeleteFixture);
+
+            var expectedArgument = {
+                body: [
+                    {
+                        delete: {
+                            _index: 'indexName',
+                            _type: 'recordType',
+                            _id: 'recordId'
+                        }
                     }
                 ]
             };
