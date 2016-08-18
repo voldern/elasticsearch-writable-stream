@@ -1,6 +1,6 @@
 # elasticsearch-bulk-index-stream
 
-A writable stream for bulk indexing records in Elasticsearch
+A writable stream for bulk doing bulk actions, like indexing, in Elasticsearch.
 
 [![build status](https://travis-ci.org/voldern/elasticsearch-bulk-index-stream.svg)](https://travis-ci.org/voldern/elasticsearch-bulk-index-stream)
 [![modules status](https://david-dm.org/voldern/elasticsearch-bulk-index-stream.svg)](https://david-dm.org/voldern/elasticsearch-bulk-index-stream)
@@ -28,9 +28,9 @@ The records written to the stream has to have the following format:
 ## Buffering
 
 The `highWaterMark` option set on the stream defines how many items
-will be buffered before doing a bulk indexing operation. The stream
-will also write all buffered items if its is closed, before emitting
-the `finish` event.
+will be buffered before doing a bulk operation. The stream will also
+write all buffered items if its is closed, before emitting the
+`finish` event.
 
 ## Flushing
 
