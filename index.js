@@ -18,23 +18,27 @@ function transformRecords(records) {
     return records.reduce(function(bulkOperations, record) {
         assert(record.index, 'index is required');
         assert(record.type, 'type is required');
-        assert(record.body, 'body is required');
 
-        var index = {
+        record.action = record.action || 'index';
+
+        var operation = {};
+
+        operation[record.action] = {
             _index: record.index,
             _type: record.type,
             _id: record.id
         };
 
         if (record.parent) {
-            index._parent = record.parent;
+            operation[record.action]._parent = record.parent;
         }
 
-        bulkOperations.push({
-            index: index
-        });
+        bulkOperations.push(operation);
 
-        bulkOperations.push(record.body);
+        if (record.action !== 'delete') {
+            assert(record.body, 'body is required');
+            bulkOperations.push(record.body);
+        }
 
         return bulkOperations;
     }, []);
@@ -83,11 +87,13 @@ ElasticsearchBulkIndexWritable.prototype.bulkWrite = function bulkWrite(records,
         }
 
         if (data.errors === true) {
-            var errors = data.items.map(function(item) {
+            var errors = _.chain(data.items)
+            .map(function(item) {
                 return _.map(item, 'error')[0];
-            });
-
-            errors = _.uniq(_.filter(errors, _.isString));
+            })
+            .filter(_.isString)
+            .uniq()
+            .value();
 
             if (this.logger) {
                 errors.forEach(this.logger.error.bind(this.logger));
