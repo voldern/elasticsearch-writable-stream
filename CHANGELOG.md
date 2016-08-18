@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.0.0] - 2016-08-18
+### Added
+- Make it possible to specify the bulk action
+
 ## [0.3.0] - 2016-07-22
 ### Added
 - Make it possible to add parent property to documents
