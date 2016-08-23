@@ -184,4 +184,7 @@ ElasticsearchBulkIndexWritable.prototype._write = function _write(record, enc, c
     callback();
 };
 
-module.exports = ElasticsearchBulkIndexWritable;
+module.exports = {
+    BulkIndexWritable: ElasticsearchBulkIndexWritable,
+    PartialUpdateWritable: require('./bulk-update')
+};
