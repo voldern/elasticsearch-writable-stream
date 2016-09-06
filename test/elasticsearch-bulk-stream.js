@@ -1,9 +1,9 @@
 'use strict';
 
-var chai = require('chai'),
+var _ = require('lodash'),
+    chai = require('chai'),
     sinon = require('sinon'),
     sinonChai = require('sinon-chai'),
-    clone = require('clone'),
     ElasticsearchBulkIndexWritable = require('../');
 
 chai.use(sinonChai);
@@ -14,11 +14,29 @@ var recordFixture = require('./fixture/record.json');
 var recordDeleteFixture = require('./fixture/record-delete.json');
 var recordParentFixture = require('./fixture/record-parent.json');
 var recordUpdateFixture = require('./fixture/record-update.json');
+var recordUpdateByQueryFixture = require('./fixture/record-update-by-query.json');
 var successResponseFixture = require('./fixture/success-response.json');
 var successDeleteResponseFixture = require('./fixture/success-delete-response.json');
 var successParentResponseFixture = require('./fixture/success-parent-response.json');
 var successUpdateResponseFixture = require('./fixture/success-update-response.json');
+var successUpdateByQueryResponseFixture = require('./fixture/success-update-by-query-response.json');
 var errorResponseFixture = require('./fixture/error-response.json');
+
+function getMissingFieldTest(fieldName, testFixture) {
+    return function(done) {
+        this.stream.on('error', function(error) {
+            expect(error).to.be.instanceOf(Error);
+            expect(error.message).to.eq(fieldName + ' is required');
+
+            done();
+        });
+
+        var fixture = _.cloneDeep(testFixture || recordFixture);
+        _.unset(fixture, fieldName);
+
+        this.stream.end(fixture);
+    };
+}
 
 describe('ElastisearchBulkIndexWritable', function() {
     beforeEach(function() {
@@ -78,22 +96,6 @@ describe('ElastisearchBulkIndexWritable', function() {
     });
 
     describe('flushing', function() {
-        function getMissingFieldTest(fieldName) {
-            return function(done) {
-                this.stream.on('error', function(error) {
-                    expect(error).to.be.instanceOf(Error);
-                    expect(error.message).to.eq(fieldName + ' is required');
-
-                    done();
-                });
-
-                var fixture = clone(recordFixture);
-                delete fixture[fieldName];
-
-                this.stream.end(fixture);
-            };
-        }
-
         beforeEach(function() {
             this.client = {
                 bulk: this.sinon.stub()
@@ -250,7 +252,8 @@ describe('ElastisearchBulkIndexWritable', function() {
     describe('custom action', function() {
         beforeEach(function() {
             this.client = {
-                bulk: this.sinon.stub()
+                bulk: this.sinon.stub(),
+                updateByQuery: this.sinon.stub()
             };
 
             this.stream = new ElasticsearchBulkIndexWritable(this.client, {
@@ -303,5 +306,34 @@ describe('ElastisearchBulkIndexWritable', function() {
             expect(this.client.bulk).to.have.callCount(1);
             expect(this.client.bulk).to.have.been.calledWith(expectedArgument);
         });
+
+        it('should support update_by_query', function() {
+            this.client.updateByQuery.yields(null, successUpdateByQueryResponseFixture);
+            this.stream.write(recordUpdateByQueryFixture);
+
+            var expectedArgument = {
+                index: 'indexName',
+                type: 'recordType',
+                body: {
+                    script: {
+                        inline: 'ctx._source.counter++'
+                    },
+                    query: {
+                        term: {
+                            foo: 'bar'
+                        }
+                    }
+                }
+            };
+
+            expect(this.client.updateByQuery).to.have.callCount(1);
+            expect(this.client.updateByQuery).to.have.been.calledWith(expectedArgument);
+        });
+
+        it('should throw error on body.script missing in update_by_query record',
+            getMissingFieldTest('body.script', recordUpdateByQueryFixture));
+
+        it('should throw error on body.query missing in update_by_query record',
+            getMissingFieldTest('body.query', recordUpdateByQueryFixture));
     });
 });

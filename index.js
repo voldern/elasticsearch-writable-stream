@@ -140,7 +140,10 @@ ElasticsearchBulkIndexWritable.prototype.partialUpdate = function partialUpdate(
         this.logger.debug('Executing update_by_query in Elasticsearch');
     }
 
-    this.client.updateByQuery(operation, function bulkCallback(err, data) {
+    var op = _.cloneDeep(operation);
+    delete op.action;
+
+    this.client.updateByQuery(op, function bulkCallback(err, data) {
         if (err) {
             err.operation = operation;
             return callback(err);
