@@ -16,11 +16,6 @@ util.inherits(ElasticsearchBulkIndexWritable, FlushWritable);
  */
 function transformRecords(records) {
     return records.reduce(function(bulkOperations, record) {
-        assert(record.index, 'index is required');
-        assert(record.type, 'type is required');
-
-        record.action = record.action || 'index';
-
         var operation = {};
 
         operation[record.action] = {
@@ -36,12 +31,36 @@ function transformRecords(records) {
         bulkOperations.push(operation);
 
         if (record.action !== 'delete') {
-            assert(record.body, 'body is required');
             bulkOperations.push(record.body);
         }
 
         return bulkOperations;
     }, []);
+}
+
+/**
+ * Validate incoming operations, ensuring they have all relevant fields defined.
+ *
+ * @private
+ * @param {object} operation
+ * @return {object}
+ */
+function validateOperation(operation) {
+    assert(operation.index, 'index is required');
+    assert(operation.type, 'type is required');
+
+    operation.action = operation.action || 'index';
+
+    if (operation.action !== 'delete') {
+        assert(operation.body, 'body is required');
+
+        if (operation.action === 'update_by_query') {
+            assert(operation.body.script, 'body.script is required');
+            assert(operation.body.query, 'body.query is required');
+        }
+    }
+
+    return operation;
 }
 
 /**
@@ -110,6 +129,48 @@ ElasticsearchBulkIndexWritable.prototype.bulkWrite = function bulkWrite(records,
 };
 
 /**
+ * Bulk update records in Elasticsearch using UpdateByQuery
+ *
+ * @private
+ * @param {object} operation
+ * @param {Function} callback
+ */
+ElasticsearchBulkIndexWritable.prototype.partialUpdate = function partialUpdate(operation, callback) {
+    if (this.logger) {
+        this.logger.debug('Executing update_by_query in Elasticsearch');
+    }
+
+    var op = _.cloneDeep(operation);
+    delete op.action;
+
+    this.client.updateByQuery(op, function bulkCallback(err, data) {
+        if (err) {
+            err.operation = operation;
+            return callback(err);
+        }
+
+        if (data.failures.length !== 0) {
+            if (this.logger) {
+                data.failures.forEach(this.logger.error.bind(this.logger));
+            }
+
+            var error = new Error('One or more failures occurred during update_by_query.');
+            error.operation = operation;
+
+            return callback(error);
+        }
+
+        if (this.logger) {
+            this.logger.info('Updated %d records (via update_by_query) in Elasticsearch', data.updated);
+        }
+
+        this.writtenRecords += data.updated;
+
+        callback(null, data);
+    }.bind(this));
+};
+
+/**
  * Flush method needed by the underlying stream implementation
  *
  * @private
@@ -163,6 +224,16 @@ ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
 ElasticsearchBulkIndexWritable.prototype._write = function _write(record, enc, callback) {
     if (this.logger) {
         this.logger.debug('Adding to Elasticsearch queue', { record: record });
+    }
+
+    try {
+        validateOperation(record);
+    } catch (error) {
+        return callback(error);
+    }
+
+    if (record.action === 'update_by_query') {
+        return this.partialUpdate(record, callback);
     }
 
     this.queue.push(record);

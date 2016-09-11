@@ -1,0 +1,14 @@
+{
+    "took": 30,
+    "timed_out": false,
+    "updated": 120,
+    "batches": 1,
+    "version_conflicts": 0,
+    "noops": 0,
+    "retries": 0,
+    "throttled_millis": 0,
+    "requests_per_second": "unlimited",
+    "throttled_until_millis": 0,
+    "total": 120,
+    "failures" : [ ]
+}

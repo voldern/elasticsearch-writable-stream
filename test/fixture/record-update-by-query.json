@@ -1,0 +1,15 @@
+{
+    "index": "indexName",
+    "type": "recordType",
+    "action": "update_by_query",
+    "body": {
+        "script": {
+            "inline": "ctx._source.counter++"
+        },
+        "query": {
+            "term": {
+                "foo": "bar"
+            }
+        }
+    }
+}
