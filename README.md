@@ -1,11 +1,16 @@
-# elasticsearch-bulk-index-stream
+# elasticsearch-writable-stream
 
-A writable stream for bulk doing bulk actions, like indexing, in Elasticsearch.
+A writable stream for doing operations in Elasticsearch with support
+for bulk actions. Supports virtually all indexing operations including
+index, update, update_by_query, and delete.
 
-[![build status](https://travis-ci.org/voldern/elasticsearch-bulk-index-stream.svg)](https://travis-ci.org/voldern/elasticsearch-bulk-index-stream)
-[![modules status](https://david-dm.org/voldern/elasticsearch-bulk-index-stream.svg)](https://david-dm.org/voldern/elasticsearch-bulk-index-stream)
+This module used to be known as [elasticsearch-bulk-index-stream](https://www.npmjs.com/package/elasticsearch-bulk-index-stream),
+but was renamed because the package has added support for non-bulk actions.
 
-[![npm badge](https://nodei.co/npm/elasticsearch-bulk-index-stream.png?downloads=true)](https://nodei.co/npm/elasticsearch-bulk-index-stream)
+[![build status](https://travis-ci.org/voldern/elasticsearch-writable-stream.svg)](https://travis-ci.org/voldern/elasticsearch-writable-stream)
+[![modules status](https://david-dm.org/voldern/elasticsearch-writable-stream.svg)](https://david-dm.org/voldern/elasticsearch-writable-stream)
+
+[![npm badge](https://nodei.co/npm/elasticsearch-writable-stream.png?downloads=true)](https://nodei.co/npm/elasticsearch-writable-stream)
 
 # Usage
 
@@ -32,6 +37,9 @@ will be buffered before doing a bulk operation. The stream will also
 write all buffered items if its is closed, before emitting the
 `finish` event.
 
+The `update_by_query` action bypasses the buffer and gets executed at
+once since its not supported by the bulk API.
+
 ## Flushing
 
 Its also possible to send in the option `flushTimeout` to indicate
@@ -49,9 +57,9 @@ sent in as `options.logger` to the constructor.
 # Example
 
 ```javascript
-var ElasticsearchBulkIndexStream = require('elasticsearch-bulk-index-stream');
+var ElasticsearchWritableStream = require('elasticsearch-writable-stream');
 
-var stream = new ElasticsearchBulkIndexStream(elasticsearchClient, {
+var stream = new ElasticsearchWritableStream(elasticsearchClient, {
   highWaterMark: 256,
   flushTimeout: 500
 });

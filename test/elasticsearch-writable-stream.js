@@ -4,7 +4,7 @@ var _ = require('lodash'),
     chai = require('chai'),
     sinon = require('sinon'),
     sinonChai = require('sinon-chai'),
-    ElasticsearchBulkIndexWritable = require('../');
+    ElasticsearchWritable = require('../');
 
 chai.use(sinonChai);
 
@@ -38,7 +38,7 @@ function getMissingFieldTest(fieldName, testFixture) {
     };
 }
 
-describe('ElastisearchBulkIndexWritable', function() {
+describe('ElasticsearchWritable', function() {
     beforeEach(function() {
         this.sinon = sinon.sandbox.create();
     });
@@ -50,12 +50,12 @@ describe('ElastisearchBulkIndexWritable', function() {
     describe('constructor', function() {
         it('should require client', function() {
             expect(function() {
-                new ElasticsearchBulkIndexWritable();
+                new ElasticsearchWritable();
             }).to.Throw(Error, 'client is required');
         });
 
         it('should default highWaterMark to 16', function() {
-            var stream = new ElasticsearchBulkIndexWritable({});
+            var stream = new ElasticsearchWritable({});
 
             expect(stream.highWaterMark).to.eq(16);
         });
@@ -63,7 +63,7 @@ describe('ElastisearchBulkIndexWritable', function() {
 
     describe('queue', function() {
         beforeEach(function() {
-            this.stream = new ElasticsearchBulkIndexWritable({}, { highWaterMark: 10 });
+            this.stream = new ElasticsearchWritable({}, { highWaterMark: 10 });
         });
 
         it('should queue up number of items equal to highWaterMark', function(done) {
@@ -101,7 +101,7 @@ describe('ElastisearchBulkIndexWritable', function() {
                 bulk: this.sinon.stub()
             };
 
-            this.stream = new ElasticsearchBulkIndexWritable(this.client, {
+            this.stream = new ElasticsearchWritable(this.client, {
                 highWaterMark: 6
             });
         });
@@ -171,7 +171,7 @@ describe('ElastisearchBulkIndexWritable', function() {
                 bulk: this.sinon.stub()
             };
 
-            this.stream = new ElasticsearchBulkIndexWritable(this.client, {
+            this.stream = new ElasticsearchWritable(this.client, {
                 highWaterMark: 10,
                 flushTimeout: 1000
             });
@@ -216,7 +216,7 @@ describe('ElastisearchBulkIndexWritable', function() {
                 bulk: this.sinon.stub()
             };
 
-            this.stream = new ElasticsearchBulkIndexWritable(this.client, {
+            this.stream = new ElasticsearchWritable(this.client, {
                 highWaterMark: 1,
                 flushTimeout: 10
             });
@@ -256,7 +256,7 @@ describe('ElastisearchBulkIndexWritable', function() {
                 updateByQuery: this.sinon.stub()
             };
 
-            this.stream = new ElasticsearchBulkIndexWritable(this.client, {
+            this.stream = new ElasticsearchWritable(this.client, {
                 highWaterMark: 1,
                 flushTimeout: 10
             });
