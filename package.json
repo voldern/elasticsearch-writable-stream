@@ -1,7 +1,7 @@
 {
-  "name": "elasticsearch-bulk-index-stream",
-  "version": "1.0.0",
-  "description": "A writable stream for bulk indexing records in Elasticsearch",
+  "name": "elasticsearch-writable-stream",
+  "version": "2.0.0",
+  "description": "A writable stream for doing operations in Elasticsearch",
   "main": "index.js",
   "scripts": {
     "test": "eslint . && istanbul cover --print both _mocha test",
@@ -25,13 +25,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:voldern/elasticsearch-bulk-index-stream.git"
+    "url": "git@github.com:voldern/elasticsearch-writable-stream.git"
   },
   "keywords": [
     "elasticsearch",
     "stream",
     "writable",
     "write",
-    "bulk"
+    "bulk",
+    "update_by_query"
   ]
 }

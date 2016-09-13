@@ -5,7 +5,7 @@ var util = require('util'),
     FlushWritable = require('flushwritable'),
     _ = require('lodash');
 
-util.inherits(ElasticsearchBulkIndexWritable, FlushWritable);
+util.inherits(ElasticsearchWritable, FlushWritable);
 
 /**
  * Transform records into a format required by Elasticsearch bulk API
@@ -73,7 +73,7 @@ function validateOperation(operation) {
  * @param {number} [options.flushTimeout=null] Number of ms to flush records after, if highWaterMark hasn't been reached
  * @param {Object} [options.logger] Instance of a logger like bunyan or winston
  */
-function ElasticsearchBulkIndexWritable(client, options) {
+function ElasticsearchWritable(client, options) {
     assert(client, 'client is required');
 
     options = options || {};
@@ -97,7 +97,7 @@ function ElasticsearchBulkIndexWritable(client, options) {
  * @param {array} records
  * @param {Function} callback
  */
-ElasticsearchBulkIndexWritable.prototype.bulkWrite = function bulkWrite(records, callback) {
+ElasticsearchWritable.prototype.bulkWrite = function bulkWrite(records, callback) {
     this.client.bulk({ body: records }, function bulkCallback(err, data) {
         if (err) {
             err.records = records;
@@ -135,7 +135,7 @@ ElasticsearchBulkIndexWritable.prototype.bulkWrite = function bulkWrite(records,
  * @param {object} operation
  * @param {Function} callback
  */
-ElasticsearchBulkIndexWritable.prototype.partialUpdate = function partialUpdate(operation, callback) {
+ElasticsearchWritable.prototype.partialUpdate = function partialUpdate(operation, callback) {
     if (this.logger) {
         this.logger.debug('Executing update_by_query in Elasticsearch');
     }
@@ -177,7 +177,7 @@ ElasticsearchBulkIndexWritable.prototype.partialUpdate = function partialUpdate(
  * @param {Function} callback
  * @return {undefined}
  */
-ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
+ElasticsearchWritable.prototype._flush = function _flush(callback) {
     clearTimeout(this.flushTimeoutId);
 
     if (this.queue.length === 0) {
@@ -221,7 +221,7 @@ ElasticsearchBulkIndexWritable.prototype._flush = function _flush(callback) {
  * @param {Function} callback
  * @returns {undefined}
  */
-ElasticsearchBulkIndexWritable.prototype._write = function _write(record, enc, callback) {
+ElasticsearchWritable.prototype._write = function _write(record, enc, callback) {
     if (this.logger) {
         this.logger.debug('Adding to Elasticsearch queue', { record: record });
     }
@@ -255,4 +255,4 @@ ElasticsearchBulkIndexWritable.prototype._write = function _write(record, enc, c
     callback();
 };
 
-module.exports = ElasticsearchBulkIndexWritable;
+module.exports = ElasticsearchWritable;
