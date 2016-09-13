@@ -1,5 +1,6 @@
-<a name="ElasticsearchBulkIndexWritable"></a>
-## ElasticsearchBulkIndexWritable(client, options)
+<a name="ElasticsearchWritable"></a>
+
+## ElasticsearchWritable(client, options)
 A simple wrapper around Elasticsearch for bulk writing items
 
 **Kind**: global function  
