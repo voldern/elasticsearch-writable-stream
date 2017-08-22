@@ -107,12 +107,18 @@ ElasticsearchWritable.prototype.bulkWrite = function bulkWrite(records, callback
 
         if (data.errors === true) {
             var errors = _.chain(data.items)
-            .map(function(item) {
-                return _.map(item, 'error')[0];
-            })
-            .filter(_.isString)
-            .uniq()
-            .value();
+                .map(function(item) {
+                    var error = _.map(item, 'error')[0];
+
+                    if (_.isObject(error) && error.type) {
+                        error = error.type + '[' + error.reason + ']';
+                    }
+
+                    return error;
+                })
+                .filter(_.isString)
+                .uniq()
+                .value();
 
             if (this.logger) {
                 errors.forEach(this.logger.error.bind(this.logger));
