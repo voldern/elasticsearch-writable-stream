@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.1] - 2017-08-22
+### Fixed
+- Support error objects returned by newer versions of ES. 
+  https://github.com/voldern/elasticsearch-writable-stream/issues/4
+
 ## [2.0.0] - 2016-09-13
 ### Changed
 - Renamed library to `elasticsearch-writable-stream`
