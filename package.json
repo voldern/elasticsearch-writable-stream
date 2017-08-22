@@ -1,6 +1,6 @@
 {
   "name": "elasticsearch-writable-stream",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A writable stream for doing operations in Elasticsearch",
   "main": "index.js",
   "scripts": {
