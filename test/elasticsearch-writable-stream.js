@@ -21,6 +21,7 @@ var successParentResponseFixture = require('./fixture/success-parent-response.js
 var successUpdateResponseFixture = require('./fixture/success-update-response.json');
 var successUpdateByQueryResponseFixture = require('./fixture/success-update-by-query-response.json');
 var errorResponseFixture = require('./fixture/error-response.json');
+var errorObjectResponseFixture = require('./fixture/error-object-response');
 
 function getMissingFieldTest(fieldName, testFixture) {
     return function(done) {
@@ -150,6 +151,20 @@ describe('ElasticsearchWritable', function() {
             this.stream.on('error', function(error) {
                 expect(error).to.be.instanceOf(Error);
                 expect(error.message).to.deep.eq('InternalServerError,Forbidden');
+
+                done();
+            });
+
+            this.stream.write(recordFixture);
+            this.stream.end(recordFixture);
+        });
+
+        it('should support error objects', function(done) {
+            this.client.bulk.yields(null, errorObjectResponseFixture);
+
+            this.stream.on('error', function(error) {
+                expect(error).to.be.instanceOf(Error);
+                expect(error.message).to.deep.eq('InternalServerError[Error reason],Forbidden[Forbidden reason]');
 
                 done();
             });
