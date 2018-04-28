@@ -208,11 +208,11 @@ ElasticsearchWritable.prototype._flush = function _flush(callback) {
             return callback(err);
         }
 
-        if (this.logger) {
-            this.logger.info('Wrote %d records to Elasticsearch', recordsCount);
-        }
-
         this.writtenRecords += recordsCount;
+
+        if (this.logger) {
+            this.logger.info('Wrote %d records to Elasticsearch (%d)', recordsCount, this.writtenRecords);
+        }
 
         callback();
     }.bind(this));
