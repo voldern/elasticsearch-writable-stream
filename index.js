@@ -17,11 +17,11 @@ util.inherits(ElasticsearchWritable, FlushWritable);
 function transformRecords(records) {
     return records.reduce(function(bulkOperations, record) {
         var operation = {};
-
+        let type = record.type ? { _type: record.type } : {}
         operation[record.action] = {
             _index: record.index,
-            _type: record.type,
-            _id: record.id
+            _id: record.id,
+            ...type
         };
 
         if (record.parent) {
@@ -47,7 +47,6 @@ function transformRecords(records) {
  */
 function validateOperation(operation) {
     assert(operation.index, 'index is required');
-    assert(operation.type, 'type is required');
 
     operation.action = operation.action || 'index';
 
