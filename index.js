@@ -14,23 +14,26 @@ util.inherits(ElasticsearchWritable, FlushWritable);
  * @param {array} records
  * @return {array}
  */
-function transformRecords(records) {
-    return records.reduce(function(bulkOperations, record) {
+function transformRecords(records)
+{
+    return records.reduce(function (bulkOperations, record)
+    {
         var operation = {};
 
         operation[record.action] = {
             _index: record.index,
-            _type: record.type,
             _id: record.id
         };
 
-        if (record.parent) {
+        if (record.parent)
+        {
             operation[record.action]._parent = record.parent;
         }
 
         bulkOperations.push(operation);
 
-        if (record.action !== 'delete') {
+        if (record.action !== 'delete')
+        {
             bulkOperations.push(record.body);
         }
 
@@ -45,16 +48,18 @@ function transformRecords(records) {
  * @param {object} operation
  * @return {object}
  */
-function validateOperation(operation) {
+function validateOperation(operation)
+{
     assert(operation.index, 'index is required');
-    assert(operation.type, 'type is required');
 
     operation.action = operation.action || 'index';
 
-    if (operation.action !== 'delete') {
+    if (operation.action !== 'delete')
+    {
         assert(operation.body, 'body is required');
 
-        if (operation.action === 'update_by_query') {
+        if (operation.action === 'update_by_query')
+        {
             assert(operation.body.script, 'body.script is required');
             assert(operation.body.query, 'body.query is required');
         }
@@ -73,7 +78,8 @@ function validateOperation(operation) {
  * @param {number} [options.flushTimeout=null] Number of ms to flush records after, if highWaterMark hasn't been reached
  * @param {Object} [options.logger] Instance of a logger like bunyan or winston
  */
-function ElasticsearchWritable(client, options) {
+function ElasticsearchWritable(client, options)
+{
     assert(client, 'client is required');
 
     options = options || {};
@@ -97,20 +103,26 @@ function ElasticsearchWritable(client, options) {
  * @param {array} records
  * @param {Function} callback
  */
-ElasticsearchWritable.prototype.bulkWrite = function bulkWrite(records, callback) {
-    this.client.bulk({ body: records }, function bulkCallback(err, data) {
-        if (err) {
+ElasticsearchWritable.prototype.bulkWrite = async function bulkWrite(records, callback)
+{
+    await this.client.bulk({ body: records }, function bulkCallback(err, data)
+    {
+        if (err)
+        {
             err.records = records;
 
             return callback(err);
         }
 
-        if (data.errors === true) {
+        if (data.errors === true)
+        {
             var errors = _.chain(data.items)
-                .map(function(item) {
+                .map(function (item)
+                {
                     var error = _.map(item, 'error')[0];
 
-                    if (_.isObject(error) && error.type) {
+                    if (_.isObject(error) && error.type)
+                    {
                         error = error.type + '[' + error.reason + ']';
                     }
 
@@ -120,7 +132,8 @@ ElasticsearchWritable.prototype.bulkWrite = function bulkWrite(records, callback
                 .uniq()
                 .value();
 
-            if (this.logger) {
+            if (this.logger)
+            {
                 errors.forEach(this.logger.error.bind(this.logger));
             }
 
@@ -132,6 +145,7 @@ ElasticsearchWritable.prototype.bulkWrite = function bulkWrite(records, callback
 
         callback();
     }.bind(this));
+    callback();
 };
 
 /**
@@ -141,22 +155,28 @@ ElasticsearchWritable.prototype.bulkWrite = function bulkWrite(records, callback
  * @param {object} operation
  * @param {Function} callback
  */
-ElasticsearchWritable.prototype.partialUpdate = function partialUpdate(operation, callback) {
-    if (this.logger) {
+ElasticsearchWritable.prototype.partialUpdate = function partialUpdate(operation, callback)
+{
+    if (this.logger)
+    {
         this.logger.debug('Executing update_by_query in Elasticsearch');
     }
 
     var op = _.cloneDeep(operation);
     delete op.action;
 
-    this.client.updateByQuery(op, function bulkCallback(err, data) {
-        if (err) {
+    this.client.updateByQuery(op, function bulkCallback(err, data)
+    {
+        if (err)
+        {
             err.operation = operation;
             return callback(err);
         }
 
-        if (data.failures.length !== 0) {
-            if (this.logger) {
+        if (data.failures.length !== 0)
+        {
+            if (this.logger)
+            {
                 data.failures.forEach(this.logger.error.bind(this.logger));
             }
 
@@ -166,7 +186,8 @@ ElasticsearchWritable.prototype.partialUpdate = function partialUpdate(operation
             return callback(error);
         }
 
-        if (this.logger) {
+        if (this.logger)
+        {
             this.logger.info('Updated %d records (via update_by_query) in Elasticsearch', data.updated);
         }
 
@@ -183,32 +204,40 @@ ElasticsearchWritable.prototype.partialUpdate = function partialUpdate(operation
  * @param {Function} callback
  * @return {undefined}
  */
-ElasticsearchWritable.prototype._flush = function _flush(callback) {
+ElasticsearchWritable.prototype._flush = function _flush(callback)
+{
     clearTimeout(this.flushTimeoutId);
 
-    if (this.queue.length === 0) {
+    if (this.queue.length === 0)
+    {
         return callback();
     }
 
-    try {
+    try
+    {
         var records = transformRecords(this.queue);
-    } catch (error) {
+    } catch (error)
+    {
         return callback(error);
     }
 
     var recordsCount = this.queue.length;
     this.queue = [];
 
-    if (this.logger) {
+    if (this.logger)
+    {
         this.logger.debug('Writing %d records to Elasticsearch', recordsCount);
     }
 
-    this.bulkWrite(records, function(err) {
-        if (err) {
+    this.bulkWrite(records, function (err)
+    {
+        if (err)
+        {
             return callback(err);
         }
 
-        if (this.logger) {
+        if (this.logger)
+        {
             this.logger.info('Wrote %d records to Elasticsearch', recordsCount);
         }
 
@@ -227,31 +256,41 @@ ElasticsearchWritable.prototype._flush = function _flush(callback) {
  * @param {Function} callback
  * @returns {undefined}
  */
-ElasticsearchWritable.prototype._write = function _write(record, enc, callback) {
-    if (this.logger) {
+ElasticsearchWritable.prototype._write = function _write(record, enc, callback)
+{
+    if (this.logger)
+    {
         this.logger.debug('Adding to Elasticsearch queue', { record: record });
     }
 
-    try {
+    try
+    {
         validateOperation(record);
-    } catch (error) {
+    } catch (error)
+    {
         return callback(error);
     }
 
-    if (record.action === 'update_by_query') {
+    if (record.action === 'update_by_query')
+    {
         return this.partialUpdate(record, callback);
     }
 
     this.queue.push(record);
 
-    if (this.queue.length >= this.highWaterMark) {
+    if (this.queue.length >= this.highWaterMark)
+    {
         return this._flush(callback);
-    } else if (this.flushTimeout) {
+    } else if (this.flushTimeout)
+    {
         clearTimeout(this.flushTimeoutId);
 
-        this.flushTimeoutId = setTimeout(function() {
-            this._flush(function(err) {
-                if (err) {
+        this.flushTimeoutId = setTimeout(function ()
+        {
+            this._flush(function (err)
+            {
+                if (err)
+                {
                     this.emit('error', err);
                 }
             }.bind(this));
